@@ -237,7 +237,7 @@ variable "MQNode01_wmq_advanced" {
 variable "MQNode01_wmq_fixpack" {
   type = "string"
   description = "The fixpack of IBM MQ to install."
-  default = "2"
+  default = "0"
 }
 
 #Variable : MQNode01_wmq_net_core_rmem_default
@@ -706,6 +706,7 @@ resource "camc_softwaredeploy" "MQNode01_wmq_v9_install" {
     },
     "wmq": {
       "advanced": "${var.MQNode01_wmq_advanced}",
+      "webhost": "${var.MQNode01-mgmt-network-public == "false" ? aws_instance.MQNode01.private_ip : aws_instance.MQNode01.public_ip}",
       "data_dir": "${var.wmq_v9_install_wmq_data_dir}",
       "fixpack": "${var.MQNode01_wmq_fixpack}",
       "global_mq_service": "true",
@@ -774,6 +775,9 @@ resource "camc_vaultitem" "VaultItem" {
 EOT
 }
 
+output "MQNode01_webconsole" {
+  value = "https://${var.MQNode01-mgmt-network-public == "false" ? aws_instance.MQNode01.private_ip : aws_instance.MQNode01.public_ip}:9443/ibmmq/console."
+}
 output "MQNode01_ip" {
   value = "Private : ${aws_instance.MQNode01.private_ip} & Public : ${aws_instance.MQNode01.public_ip}"
 }

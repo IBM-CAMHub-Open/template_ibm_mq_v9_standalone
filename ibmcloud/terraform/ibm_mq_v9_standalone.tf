@@ -200,7 +200,7 @@ variable "MQNode01_wmq_advanced" {
 variable "MQNode01_wmq_fixpack" {
   type = "string"
   description = "The fixpack of IBM MQ to install."
-  default = "2"
+  default = "0"
 }
 
 #Variable : MQNode01_wmq_net_core_rmem_default
@@ -673,6 +673,7 @@ resource "camc_softwaredeploy" "MQNode01_wmq_v9_install" {
     },
     "wmq": {
       "advanced": "${var.MQNode01_wmq_advanced}",
+      "webhost": "${var.MQNode01-mgmt-network-public == "false" ? ibm_compute_vm_instance.MQNode01.ipv4_address_private : ibm_compute_vm_instance.MQNode01.ipv4_address}",
       "data_dir": "${var.wmq_v9_install_wmq_data_dir}",
       "fixpack": "${var.MQNode01_wmq_fixpack}",
       "global_mq_service": "true",
@@ -741,6 +742,9 @@ resource "camc_vaultitem" "VaultItem" {
 EOT
 }
 
+output "MQNode01_webconsole" {
+  value = "https://${var.MQNode01-mgmt-network-public == "false" ? ibm_compute_vm_instance.MQNode01.ipv4_address_private : ibm_compute_vm_instance.MQNode01.ipv4_address}:9443/ibmmq/console."
+}
 output "MQNode01_ip" {
   value = "Private : ${ibm_compute_vm_instance.MQNode01.ipv4_address_private} & Public : ${ibm_compute_vm_instance.MQNode01.ipv4_address}"
 }
